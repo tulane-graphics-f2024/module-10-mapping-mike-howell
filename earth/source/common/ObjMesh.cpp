@@ -137,44 +137,46 @@ bool Mesh::loadOBJ(const char * path){
   return true;
 }
 
-bool Mesh::makeSphere(int steps){
-  //TODO: Normals and texture coordinates
-  normals.push_back(vec3(0,0,1));
-  uvs.push_back(vec2(0,0));
 
-  double step_theta = (2*M_PI)/(double)(steps-1);
-  double step_phi   = (M_PI)/(double)(steps-1);
-  
-  std::vector < vec3 > pstrip0;
-  std::vector < vec3 > pstrip1;
-  
-  //latitude
-  for(unsigned int i=0; i < steps; i++){
-    double phi = i*step_phi;
-    //longitude
-    for(unsigned int j=0; j < steps; j++){
-      double theta = j*step_theta;
-      vec3 p = vec3(-cos(theta)*sin(phi), cos(phi), sin(theta)*sin(phi));
-      pstrip1.push_back(p);
+
+bool Mesh::makeSphere(int steps) {
+    if (steps < 2) return false;
+
+    double r = 1.0;
+    double step_theta = (2.0 * M_PI) / steps;
+    double step_phi = M_PI / steps;
+
+    vertices.clear();
+    normals.clear();
+    uvs.clear();
+    indices.clear();
+
+    // Generate vertices, normals, and UVs
+    for (int i = 0; i <= steps; i++) {
+        double phi = i * step_phi;
+
+        for (int j = 0; j <= steps; j++) {
+            double theta = j * step_theta;
+
+            // Vertex position
+            double x = r * cos(theta) * sin(phi);
+            double y = r * sin(theta) * sin(phi);
+            double z = r * cos(phi);
+            vec4 vertex(x, y, z, 1.0);
+            vertices.push_back(vertex);
+
+            // Normal
+            vec3 normal = normalize(vec3(x, y, z));
+            normals.push_back(normal);
+
+            // UV mapping
+            float u = static_cast<float>(j) / steps;
+            float v = static_cast<float>(i) / steps;
+            uvs.push_back(vec2(u, v));
+        }
     }
-    
-    for(unsigned int k=0; (k+1) < pstrip0.size(); k++){
-      vertices.push_back(pstrip0[k]);
-      
-      vertices.push_back(pstrip1[k]);
-      
-      vertices.push_back(pstrip0[k+1]);
-      
-      vertices.push_back(pstrip0[k+1]);
-      
-      vertices.push_back(pstrip1[k]);
-       
-      vertices.push_back(pstrip1[k+1]);
-    }
-    
-    pstrip1.swap(pstrip0);
-    pstrip1.clear();
-  }
-  
-  return true;
-  }
+
+   
+
+    return true;
+}
