@@ -239,14 +239,18 @@ void init(){
   glGenTextures( 1, &cloud_texture );
   glGenTextures( 1, &perlin_texture);
   
-  std::string earth_img = source_path + "/images/checkerboard.png";
+  std::string earth_img = source_path + "/images/checkerboard.png"; // change to world map then use shader to mix them, not layers no top or bottom just mix in shader
   loadFreeImageTexture(earth_img.c_str(), month_texture, GL_TEXTURE0);
     
   glUniform1i( glGetUniformLocation(program, "textureEarth"), 0 );
 
-  //TODO: ADD NIGHT TEXTURE
+  std::string night_img = source_path + "/images/night_texture.png";
+  loadFreeImageTexture(night_img.c_str(), night_texture, GL_TEXTURE1);
+  glUniform1i(glGetUniformLocation(program, "textureNight"), 1);
 
-  //TODO: ADD CLOUD TEXTURE
+  std::string cloud_img = source_path + "/images/cloud_texture.png";
+  loadFreeImageTexture(cloud_img.c_str(), cloud_texture, GL_TEXTURE2);
+  glUniform1i(glGetUniformLocation(program, "textureCloud"), 2);
   
   //TODO: ADD NOISE TEXTURE
 
