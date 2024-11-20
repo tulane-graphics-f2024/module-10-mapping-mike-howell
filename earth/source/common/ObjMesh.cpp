@@ -137,46 +137,81 @@ bool Mesh::loadOBJ(const char * path){
   return true;
 }
 
+bool Mesh::makeSphere(int steps){
+  //TODO: Normals and texture coordinates
+  //normals.push_back(vec3(0,0,1));
+  //uvs.push_back(vec2(0,0));
 
+  double step_theta = (2*M_PI)/(double)(steps-1);
+  double step_phi   = (M_PI)/(double)(steps-1);
+  
+  std::vector < vec3 > pstrip0;
+  std::vector < vec3 > pstrip1;
+  std::vector < vec2 > uvstrip0;
+  std::vector < vec2 > uvstrip1;
+  
+  
+  //latitude
+  for (unsigned int i = 0; i < steps; i++) {
+      double phi = i * step_phi;
+      double v = phi / M_PI;
 
-bool Mesh::makeSphere(int steps) {
-    if (steps < 2) return false;
+      //longitude
+      for (unsigned int j = 0; j < steps; j++) {
+          double theta = j * step_theta;
+          double u = theta / (2.0 * M_PI);
 
-    double r = 1.0;
-    double step_theta = (2.0 * M_PI) / steps;
-    double step_phi = M_PI / steps;
+          vec3 p = vec3(-cos(theta) * sin(phi), cos(phi), sin(theta) * sin(phi));
+          pstrip1.push_back(p);
+          uvstrip1.push_back(vec2(u, v));
 
-    vertices.clear();
-    normals.clear();
-    uvs.clear();
-    indices.clear();
+      }
 
-    // Generate vertices, normals, and UVs
-    for (int i = 0; i <= steps; i++) {
-        double phi = i * step_phi;
+      for (unsigned int k = 0; (k + 1) < pstrip0.size(); k++) {
+          vertices.push_back(pstrip0[k]); // when I lookup 0 1 i can push back in uv strip 0 and 1, so pushback uv coordinates for those points 
+      
+          vertices.push_back(pstrip1[k]);
 
-        for (int j = 0; j <= steps; j++) {
-            double theta = j * step_theta;
+          vertices.push_back(pstrip0[k + 1]);
 
-            // Vertex position
-            double x = r * cos(theta) * sin(phi);
-            double y = r * sin(theta) * sin(phi);
-            double z = r * cos(phi);
-            vec4 vertex(x, y, z, 1.0);
-            vertices.push_back(vertex);
+          vertices.push_back(pstrip0[k + 1]);
 
-            // Normal
-            vec3 normal = normalize(vec3(x, y, z));
-            normals.push_back(normal);
+          vertices.push_back(pstrip1[k]);
 
-            // UV mapping
-            float u = static_cast<float>(j) / steps;
-            float v = static_cast<float>(i) / steps;
-            uvs.push_back(vec2(u, v));
-        }
-    }
+          vertices.push_back(pstrip1[k + 1]);
 
-   
+          normals.push_back(pstrip0[k]); // when I lookup 0 1 i can push back in uv strip 0 and 1, so pushback uv coordinates for those points 
 
-    return true;
-}
+          normals.push_back(pstrip1[k]);
+
+          normals.push_back(pstrip0[k + 1]);
+
+          normals.push_back(pstrip0[k + 1]);
+
+          normals.push_back(pstrip1[k]);
+
+          normals.push_back(pstrip1[k + 1]);
+
+          uvs.push_back(uvstrip1[k]); // when I lookup 0 1 i can push back in uv strip 0 and 1, so pushback uv coordinates for those points 
+
+          uvs.push_back(uvstrip1[k]);
+
+          uvs.push_back(uvstrip1[k + 1]);
+
+          uvs.push_back(uvstrip1[k + 1]);
+
+          uvs.push_back(uvstrip1[k]);
+
+          uvs.push_back(uvstrip1[k + 1]);
+
+      }
+      pstrip1.swap(pstrip0);
+      pstrip1.clear();
+
+      uvstrip1.swap(uvstrip0);
+      uvstrip1.clear();
+      // swap pstrip 1 w uvs
+  }
+  
+  return true;
+  }
