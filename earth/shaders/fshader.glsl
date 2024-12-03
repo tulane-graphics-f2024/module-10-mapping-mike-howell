@@ -16,19 +16,31 @@ uniform sampler2D texturePerlin;
 
 uniform float animate_time;
 
-
 out vec4 fragColor;
 
 void main()
 {
-  vec4 L = normalize( (ModelViewLight*LightPosition) - pos );
-  float Kd = 1.0;
-  
-  vec4 diffuse_color = texture(textureEarth, texCoord );
-  diffuse_color = Kd*diffuse_color;
-  
-  fragColor = ambient + diffuse_color;
-  fragColor = clamp(fragColor, 0.0, 1.0);
-  fragColor.a = 1.0;
-}
+    
+    vec4 L = normalize((ModelViewLight * LightPosition) - pos);
+    float Kd = max(dot(normalize(N.xyz), L.xyz), 0.0);
 
+    
+    vec4 dayColor = texture(textureEarth, texCoord);
+    vec4 nightColor = texture(textureNight, texCoord);
+    vec4 cloudColor = texture(textureCloud, texCoord);
+    vec4 noise = texture(texturePerlin, texCoord * 2.0); /
+
+
+    float blendFactor = Kd * 0.7 + 0.3 * noise.r;
+    
+ 
+    vec4 baseColor = mix(nightColor, dayColor, blendFactor);
+
+    
+    vec4 mixedColor = mix(baseColor, cloudColor, 0.4 * (0.5 + 0.5 * noise.r));
+
+    // Final color output with ambient lighting
+    fragColor = ambient + mixedColor;
+    fragColor = clamp(fragColor, 0.0, 1.0);
+    fragColor.a = 1.0;
+}
