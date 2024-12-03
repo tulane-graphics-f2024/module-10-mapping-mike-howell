@@ -239,7 +239,7 @@ void init(){
   glGenTextures( 1, &cloud_texture );
   glGenTextures( 1, &perlin_texture);
   
-  std::string earth_img = source_path + "/images/checkerboard.png"; // change to world map then use shader to mix them, not layers no top or bottom just mix in shader
+  std::string earth_img = source_path + "/images/world.200405.3.png"; // change to world map then use shader to mix them, not layers no top or bottom just mix in shader
   loadFreeImageTexture(earth_img.c_str(), month_texture, GL_TEXTURE0);
     
   glUniform1i( glGetUniformLocation(program, "textureEarth"), 0 );
