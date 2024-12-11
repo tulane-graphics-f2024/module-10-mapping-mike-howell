@@ -239,19 +239,20 @@ void init(){
   glGenTextures( 1, &cloud_texture );
   glGenTextures( 1, &perlin_texture);
   
-  std::string earth_img = source_path + "/images/world.200405.3.png"; // change to world map then use shader to mix them, not layers no top or bottom just mix in shader
+  std::string earth_img = source_path + "/images/world.200405.3.png";
   loadFreeImageTexture(earth_img.c_str(), month_texture, GL_TEXTURE0);
     
   glUniform1i( glGetUniformLocation(program, "textureEarth"), 0 );
 
-  std::string night_img = source_path + "/images/night_texture.png";
-  loadFreeImageTexture(night_img.c_str(), night_texture, GL_TEXTURE1);
-  glUniform1i(glGetUniformLocation(program, "textureNight"), 1);
-
-  std::string cloud_img = source_path + "/images/cloud_texture.png";
-  loadFreeImageTexture(cloud_img.c_str(), cloud_texture, GL_TEXTURE2);
-  glUniform1i(glGetUniformLocation(program, "textureCloud"), 2);
-  
+  //TODO: ADD NIGHT TEXTURE
+    std::string night_img = source_path + "/images/BlackMarble.png";
+    loadFreeImageTexture(night_img.c_str(), night_texture, GL_TEXTURE2);
+    glUniform1i(glGetUniformLocation(program, "textureNight"), 2);
+  //TODO: ADD CLOUD TEXTURE
+  std::string cloud_img = source_path + "/images/cloud_combined.png";
+  loadFreeImageTexture(cloud_img.c_str(),cloud_texture, GL_TEXTURE1);
+  glUniform1i(glGetUniformLocation(program, "textureCloud"), 1);
+  glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
   //TODO: ADD NOISE TEXTURE
 
   glBindVertexArray( vao );
@@ -322,7 +323,15 @@ void animate(){
 
     animate_time = animate_time + 0.0001;
     rotation_angle  = rotation_angle + 0.25;
-
+    if(glfwGetTime() > (1.0/60.0)){
+        animate_time += 0.0001;
+        rotation_angle += .25;
+        glfwSetTime(0.0);
+      }
+    float radius = 10.0f;
+    float lightX = radius * cos(rotation_angle* DegreesToRadians);
+    float lightZ = radius * sin(rotation_angle * DegreesToRadians);
+    light_position = vec4(lightX, 0.0, lightZ, 1.0);
     glfwSetTime(0.0);
   }
 }
@@ -406,7 +415,8 @@ int main(void){
     glUniformMatrix4fv( ModelViewLight, 1, GL_TRUE, user_MV*mesh->model_view);
     glUniformMatrix4fv( Projection, 1, GL_TRUE, projection );
     glUniformMatrix4fv( NormalMatrix, 1, GL_TRUE, transpose(invert(user_MV*mesh->model_view)));
-
+    glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
+      
     glDrawArrays( GL_TRIANGLES, 0, mesh->vertices.size() );
     // ====== End: Draw ======
 
